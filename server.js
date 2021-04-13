@@ -39,8 +39,6 @@ app.get('/events', (req, res) => {
         res.write('event: tick-event\n');
         res.write('id: ' + (thisConnection * 1000 + thisEvent) + '\n');
         res.write('data: ' + JSON.stringify(sseData) + '\n\n');
-        
-        console.log(sseData.text);
     }, 2500);
     
     req.on('close', function() {
@@ -62,19 +60,28 @@ wss = new WebSocketServer({port: 40510})
 wss.on('connection', function (ws) {
     var thisEvent = 0;
 
-    ws.on('message', function (message) {
-        console.log('received: %s', message)
-    })
-    
-    setInterval(function() {
+    var pushInterval = setInterval(function() {
         var wsData = {
             text: 'websocket event #' + ++thisEvent,
             prices: data.prices,
         }
         ws.send(JSON.stringify(wsData));
     }, 2500);
-})
 
+    ws.on('open', function open() {
+        console.log('Client connected to WebSocket');
+    });
+
+    ws.on('message', function (message) {
+        console.log('WebSocket received: %s', message);
+    })
+
+    ws.on('close', function close() {
+        console.log('Client disconnected websocket');
+        clearInterval(pushInterval);
+        ws.terminate();
+    });
+})
 
 // Get Prices from Coindesk
 function getPrices() {
