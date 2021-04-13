@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, height=device-height" />
+	<title>Server-Sent Events</title>
+	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+	<script type="text/javascript" src="ws.js"></script>
+	<script type="text/javascript" src="sse.js"></script>
+</head>
+<body>
+	
+	<div class="container">
+		<h1>Server-Sent Events & WebSockets</h1>
+		<div class="row">
+			<div class="col s6">
+				<div class="switch">
+					<label>
+						use Serve-Sent Events
+						<input type="checkbox">
+						<span class="lever"></span>
+						use WebSocket
+					</label>
+				</div>
+			</div>
+			<div class="col s6">
+				<button class="waves-effect waves-light btn-small" onclick="resetLog()">Clear log</button>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col s6">
+				<table>
+					<thead>
+						<tr>
+							<td>symbol</td>
+							<td>price</td>
+							<td>change</td>
+						</tr>
+					<thead>
+					<tbody id="price-list" \>
+				</table> 
+			</div>
+			<div class="col s6">
+				<div class="log">
+					<ul></ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<script>
+		var useWebsocket = false;
+		var switcher = document.querySelector('.switch').querySelector('input[type=checkbox]');
+		switcher.addEventListener("change", (e) => {
+			var isWebSocketActive = switcher.checked;
+			if (isWebSocketActive) {
+				useWebsocket = true;
+			} else {
+				useWebsocket = false;
+			}
+		});
+
+		function resetLog() {
+			document.querySelector('ul').innerHTML = "";
+		}
+
+		function log(text) {
+			var ul = document.querySelector('ul');
+			var li = document.createElement('li');
+			li.innerText = text;
+			ul.appendChild(li);
+		}
+
+		function change(price) {
+			var base = price.data.base;
+			var amount = price.data.amount;
+
+			// create row elements
+			var tr = document.getElementById("row-"+base);
+			if (tr == undefined) {
+				var table = document.getElementById("price-list");
+				var row = table.insertRow(0);
+				var cell1 = row.insertCell(0);
+				var cell2 = row.insertCell(1);
+				var cell3 = row.insertCell(2);
+
+				row.setAttribute("id", "row-"+base);
+				cell1.setAttribute("id", "base-"+base);
+				cell2.setAttribute("id", "priceval-"+base);
+				cell3.setAttribute("id", "changeval-"+base);
+
+				cell1.innerText = base;
+			}
+
+			// check last and current value
+			var e1 = document.getElementById("priceval-"+base);
+			var newVal = parseFloat(amount);//.toFixed(4); 
+			var lastVal = parseFloat(e1.innerText.substring(2));
+			
+			if (newVal == lastVal) {
+				return;
+			}
+			
+			// update price and add effects :) 
+			e1.innerHTML = "$ " + newVal;
+			var e2 = document.getElementById("changeval-"+base);
+			var changepct = isNaN(lastVal) ? 0 : (((newVal - lastVal) /lastVal )*100);
+			e2.innerHTML = changepct.toFixed(2) + "%";
+			e2.classList.add("greenFont");
+			
+			var pricelist = e1.classList;
+			if (newVal < lastVal) {
+				pricelist.remove( "flashGreen1","flashGreen2" )
+				if (pricelist.contains("flashRed1")) {
+					pricelist.replace( "flashRed1", "flashRed2" )
+				} else if (pricelist.contains("flashRed2")) {
+					pricelist.replace( "flashRed2", "flashRed1" )
+				} else {
+					pricelist.add( "flashRed1")
+				}
+				
+				e2.classList.remove("greenFont");
+				e2.classList.add("redFont");
+			} else {
+				pricelist.remove( "flashRed1","flashRed2" )
+				if (pricelist.contains("flashGreen1")) {
+					pricelist.replace( "flashGreen1", "flashGreen2" )
+				} else if (pricelist.contains("flashGreen2")) {
+					pricelist.replace( "flashGreen2", "flashGreen1" )
+				} else {
+					pricelist.add( "flashGreen1")
+				}
+				e2.classList.remove("redFont");
+				e2.classList.add("greenFont");
+			}
+			lastVal = newVal;
+		}
+	</script>
+		
+</body>
+</html>
+
+	
