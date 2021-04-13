@@ -1,6 +1,6 @@
 # Server-Sent Events w/ crypto price ticks
 
-This is a simple demonstration of Server-Side Events & WebSockets based on a Node.js backend and a HTML/JS frontend.
+This is a simple demonstration of Server-Sent Events & WebSockets based on a Node.js backend and a HTML/JS frontend.
 
 [Server-Sent events](https://developer.mozilla.org/en-US/docs/Server-sent_events/Using_server-sent_events) (SSE) is a specification for implementing server-side push events to web frontend applications, through plain-old HTTP.
 
@@ -32,10 +32,11 @@ On this page you have the opportunity to switch between SSE and WebSockets for t
 * Transported over simple HTTP instead of a custom protocol
 * Can be poly-filled with javascript to "backport" SSE to browsers that do not support it yet.
 * Built in support for re-connection and event-id
-   * try shutting down and restart our NodeJs server, while using SSE the tick events will work great
+   * try restarting our Node.js server. 
+   * when using SSE, the tick events will work great again
    * with the switch set to WebSockets, thats not the case
 * No trouble with corporate firewalls doing packet inspection
-* Idealy used for Stock ticker or browser notifications
+* Ideally used for stock ticker or browser notifications
 
 ### Advantages of WebSockets:
 
@@ -44,7 +45,7 @@ On this page you have the opportunity to switch between SSE and WebSockets for t
 * Supports binary data as well
 * No connection limit
    * SSE is limited to 6 connections per browser + domain
-* Idealy used for Chat applications
+* Ideally used for chat applications
 
 
 ~💎👐💎~
